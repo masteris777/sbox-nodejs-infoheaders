@@ -14,6 +14,6 @@ node server
 node client
 ```
 
-# Config
+## Config
 
 in ./config.json
