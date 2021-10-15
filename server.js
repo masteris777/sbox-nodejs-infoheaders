@@ -1,7 +1,10 @@
+const { setTimeout } = require("timers/promises");
+const fetchResource = require("./resource");
 const express = require("express");
+const config = require("./config.json");
+
 const app = express();
 const port = 3000;
-const config = require("./config.json");
 
 app.get("/:id", async (req, res) => {
 	const promise = getResource(req.params.id);
@@ -11,7 +14,7 @@ app.get("/:id", async (req, res) => {
 	} while (
 		!(await Promise.race([
 			promise,
-			timeout(config.PROCESSING_HEADER_PERIOD_MS, false),
+			setTimeout(config.PROCESSING_HEADER_PERIOD_MS, false),
 		]))
 	);
 
@@ -23,25 +26,9 @@ function getResource(id) {
 	return (cache[id] = cache[id] || fetchResource(id));
 }
 
-async function fetchResource(id) {
-	await timeout(config.PROCESSING_TIME_MS);
-	return {
-		id,
-		report: "hello world",
-	};
-}
-
 app.listen(port, () => {
 	console.log(`Server listening at http://localhost:${port}`);
 });
-
-async function timeout(t, result) {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve(result);
-		}, t);
-	});
-}
 
 // function writeProcessing(res, expectedTime) {
 // 	const eta = Math.round((expectedTime - Date.now()) / 1000);
